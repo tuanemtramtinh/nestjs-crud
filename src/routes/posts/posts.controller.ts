@@ -8,6 +8,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { PostsService } from 'src/routes/posts/posts.service';
+import envConfig from 'src/shared/config';
 
 @Controller('posts')
 export class PostsController {
@@ -15,6 +16,7 @@ export class PostsController {
 
   @Get()
   public getPosts() {
+    console.log(envConfig.ACCESS_TOKEN_SECRET);
     return this.postsService.getPosts();
   }
 
