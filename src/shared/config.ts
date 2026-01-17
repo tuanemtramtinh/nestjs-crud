@@ -18,6 +18,8 @@ class ConfigSchema {
   @IsString()
   ACCESS_TOKEN_SECRET: string;
   @IsString()
+  ACCESS_TOKEN_EXPIRES_IN: string;
+  @IsString()
   REFRESH_TOKEN_SECRET: string;
   @IsString()
   REFRESH_TOKEN_EXPIRES_IN: string;
