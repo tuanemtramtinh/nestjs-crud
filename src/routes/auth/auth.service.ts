@@ -4,7 +4,6 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { Prisma } from 'generated/prisma/client';
 import { HashingService } from 'src/shared/services/hashing.service';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { LoginBodyDTO, RegisterBodyDTO } from './auth.dto';
@@ -110,6 +109,30 @@ export class AuthService {
 
       //4. Tạo mới accesToken và refreshToken
       return await this.generateTokens({ userId });
+    } catch (error) {
+      // Trường hợp đã refresh token rồi, hãy thông báo cho user biết
+      // refresh token của họ đã bị đánh cắp
+      if (isNotFoundError(error)) {
+        throw new UnauthorizedException('Refresh token has been revoked');
+      }
+
+      throw new UnauthorizedException();
+    }
+  }
+
+  async logout(refreshToken: string) {
+    try {
+      //1. Kiểm tra refreshToken có hợp hay không
+      await this.tokenService.verifyRefreshToken(refreshToken);
+
+      //2. Xoá refreshToken
+      await this.prismaService.refreshToken.delete({
+        where: {
+          token: refreshToken,
+        },
+      });
+
+      return { message: 'Logout successfuly' };
     } catch (error) {
       // Trường hợp đã refresh token rồi, hãy thông báo cho user biết
       // refresh token của họ đã bị đánh cắp

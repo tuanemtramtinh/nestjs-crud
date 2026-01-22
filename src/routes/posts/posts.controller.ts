@@ -8,21 +8,24 @@ import {
   Put,
 } from '@nestjs/common';
 import { PostsService } from 'src/routes/posts/posts.service';
-import envConfig from 'src/shared/config';
+import { AuthType, ConditionGuard } from 'src/shared/constants/auth.constant';
+import { ActiveUser } from 'src/shared/decorators/active-user.decorator';
+import { Auth } from 'src/shared/decorators/auth.decorator';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @Auth([AuthType.Bearer, AuthType.ApiKey], { condition: ConditionGuard.Or })
   @Get()
   public getPosts() {
-    console.log(envConfig.ACCESS_TOKEN_SECRET);
     return this.postsService.getPosts();
   }
 
   @Post()
-  public createPost(@Body() body: any) {
-    return this.postsService.createPost(body);
+  @Auth([AuthType.Bearer])
+  public createPost(@Body() body: any, @ActiveUser('userId') user: number) {
+    return this.postsService.createPost(body, user);
   }
 
   @Get(':id')

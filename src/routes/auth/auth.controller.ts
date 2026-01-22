@@ -3,6 +3,8 @@ import { AuthService } from './auth.service';
 import {
   LoginBodyDTO,
   LoginResDTO,
+  LogoutBodyDTO,
+  LogoutResDTO,
   RefreshTokenBodyDTO,
   RegisterBodyDTO,
   RegisterResDTO,
@@ -26,6 +28,12 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   async refreshToken(@Body() body: RefreshTokenBodyDTO) {
+    console.log(123);
     return this.authService.refreshToken(body.refreshToken);
+  }
+
+  @Post('logout')
+  async logout(@Body() body: LogoutBodyDTO) {
+    return new LogoutResDTO(await this.authService.logout(body.refreshToken));
   }
 }

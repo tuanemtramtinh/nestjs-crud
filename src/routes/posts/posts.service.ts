@@ -11,9 +11,7 @@ export class PostsService {
     return await this.prismaService.post.findMany({});
   }
 
-  public async createPost(body: any) {
-    const userId = 1;
-
+  public async createPost(body: any, userId: number) {
     return await this.prismaService.post.create({
       data: {
         title: body.title,

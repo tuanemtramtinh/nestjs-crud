@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import 'dotenv/config';
 import { plainToInstance } from 'class-transformer';
-import { IsNumber, IsString, validateSync } from 'class-validator';
+import { IsString, validateSync } from 'class-validator';
 import fs from 'fs';
 import path from 'path';
 
@@ -23,9 +23,8 @@ class ConfigSchema {
   REFRESH_TOKEN_SECRET: string;
   @IsString()
   REFRESH_TOKEN_EXPIRES_IN: string;
-
-  @IsNumber()
-  TEST: number;
+  @IsString()
+  SECRET_API_KEY: string;
 }
 
 const configServer = plainToInstance(ConfigSchema, process.env, {
