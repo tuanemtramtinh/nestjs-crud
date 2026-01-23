@@ -7,6 +7,11 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import {
+  CreatePostBodyDTO,
+  GetPostItemDTO,
+  UpdatePostBodyDTO,
+} from 'src/routes/posts/post.dto';
 import { PostsService } from 'src/routes/posts/posts.service';
 import { AuthType, ConditionGuard } from 'src/shared/constants/auth.constant';
 import { ActiveUser } from 'src/shared/decorators/active-user.decorator';
@@ -18,28 +23,46 @@ export class PostsController {
 
   @Auth([AuthType.Bearer, AuthType.ApiKey], { condition: ConditionGuard.Or })
   @Get()
-  public getPosts() {
-    return this.postsService.getPosts();
+  public getPosts(@ActiveUser('userId') userId: number) {
+    return this.postsService
+      .getPosts(userId)
+      .then((posts) => posts.map((post) => new GetPostItemDTO(post)));
   }
 
   @Post()
   @Auth([AuthType.Bearer])
-  public createPost(@Body() body: any, @ActiveUser('userId') user: number) {
-    return this.postsService.createPost(body, user);
+  public async createPost(
+    @Body() body: CreatePostBodyDTO,
+    @ActiveUser('userId') user: number,
+  ) {
+    return new GetPostItemDTO(await this.postsService.createPost(body, user));
   }
 
   @Get(':id')
-  public getPostDetail(@Param('id') id: string) {
-    return this.postsService.getPostDetail(id);
+  public async getPostDetail(@Param('id') id: string) {
+    return new GetPostItemDTO(
+      await this.postsService.getPostDetail(Number(id)),
+    );
   }
 
   @Put(':id')
-  updatePost(@Param('id') id: string, @Body() body: any) {
-    return this.postsService.updatePost(id, body);
+  @Auth([AuthType.Bearer])
+  async updatePost(
+    @Param('id') id: string,
+    @Body() body: UpdatePostBodyDTO,
+    @ActiveUser('userId') userId: number,
+  ) {
+    return new GetPostItemDTO(
+      await this.postsService.updatePost(Number(id), body, userId),
+    );
   }
 
   @Delete(':id')
-  deletePost(@Param() id: string) {
-    return this.postsService.deletePost(id);
+  @Auth([AuthType.Bearer])
+  async deletePost(
+    @Param('id') id: string,
+    @ActiveUser('userId') userId: number,
+  ) {
+    return await this.postsService.deletePost(Number(id), userId);
   }
 }
